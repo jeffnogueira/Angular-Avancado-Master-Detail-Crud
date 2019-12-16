@@ -75,8 +75,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
     if (this.currentAction === 'new') {
       this.pageTitle = this.creationPageTitle();
     } else {
-      const categoryName = this.category.name || '';
-      this.pageTitle = 'Editando Categoria: ' + categoryName;
+      this.pageTitle = this.editionPageTitle();
     }
   }
 
@@ -84,30 +83,37 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
     return 'Novo';
   }
 
-  protected createCategory() {
-    const category: Category = Object.assign(new Category(), this.categoryForm.value);
+  protected editionPageTitle(): string {
+    return 'Edição';
+  }
 
-    this.resourceService.create(category)
+  protected createResource() {
+    const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
+
+    this.resourceService.create(resource)
       .subscribe(
-        category => this.actionsForSuccess(category),
+        resource => this.actionsForSuccess(resource),
         error => this.actionsForError(error)
       );
   }
 
-  protected updateCategory() {
-    const category: Category = Object.assign(new Category(), this.categoryForm.value);
+  protected updateResource() {
+    const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
 
-    this.resourceService.update(category)
+    this.resourceService.update(resource)
       .subscribe(
-        category => this.actionsForSuccess(category),
+        resource => this.actionsForSuccess(resource),
         error => this.actionsForError(error)
       );
   }
 
-  protected actionsForSuccess(category: Category) {
+  protected actionsForSuccess(resource: T) {
     toastr.success('Solicitação processada com sucesso!');
-    this.router.navigateByUrl('categories', { skipLocationChange: true }).then(
-      () => this.router.navigate(['categories', category.id, 'edit'])
+
+    const baseComponentPath: string = this.route.snapshot.parent.url[0].path;
+
+    this.router.navigateByUrl(baseComponentPath, { skipLocationChange: true }).then(
+      () => this.router.navigate([baseComponentPath, resource.id, 'edit'])
     );
   }
 
@@ -121,5 +127,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
       this.serverErrorMessages = ['Falha na comunicação com o servidor. Por favor, tente novamente.'];
     }
   }
+
+  protected abstract buildResourceForm(): void;
 
 }
