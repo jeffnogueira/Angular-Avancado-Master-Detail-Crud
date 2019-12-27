@@ -24,9 +24,9 @@ export class ReportsComponent implements OnInit {
   chartOptions = {
     scales: {
       yAxes: [{
-          ticks: {
-            beginAtZero: true,
-          }
+        ticks: {
+          beginAtZero: true
+        }
       }]
     }
   };
